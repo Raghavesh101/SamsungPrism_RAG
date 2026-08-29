@@ -1,52 +1,57 @@
-# Retrieval-Augmented Generation (RAG) Model Optimization Project
+# RAG Inference Optimization
 
-## Project Overview
+Optimizing a Retrieval-Augmented Generation (RAG) pipeline for **latency and memory** without
+sacrificing generation quality. This is the experimental code behind a first-authored paper
+(*Enhancing Retrieval-Augmented Generation: Improving Performance through Optimization
+Techniques*, **under review at Springer**, in collaboration with Samsung R&D Institute India / PRISM).
 
-This project focuses on optimizing a Retrieval-Augmented Generation (RAG) model that integrates document retrieval with natural language processing to enhance response accuracy and speed. The project leverages technologies such as the FAISS vector store and GPT-2 model to improve retrieval performance and response generation.
+## What this does
 
-## Key Features
+A vanilla RAG pipeline (document retrieval → context injection → generation) is treated as a
+baseline, and four optimization techniques are layered on and benchmarked against it across
+**latency, memory footprint, and generation quality (BLEU)**:
 
-- **Document Embedding & Retrieval**: Utilizes FAISS for efficient vector storage and retrieval, significantly speeding up document access.
-- **Caching Mechanism**: Implements caching to reduce retrieval times for frequently requested data.
-- **RAG Integration**: Combines retrieved documents with GPT-2 model processing to generate contextually relevant responses.
-- **Performance Monitoring**: Includes a system to evaluate the performance enhancements from various optimizations.
+| Technique | Idea |
+|---|---|
+| **FAISS vector retrieval** | Approximate nearest-neighbour search over document embeddings for fast retrieval |
+| **LRU caching** | Cache results for frequently requested queries to skip repeated retrieval/generation |
+| **INT8 quantization** | Store weights in 8-bit to cut memory and speed up inference, trading a small accuracy cost |
+| **Model parallelism** | Split the model across devices to fit larger models / improve throughput |
 
-## Getting Started
+**Headline result:** ~**34.6% reduction in inference time** with a substantially smaller memory
+footprint while preserving generation quality, plus a characterization of the
+accuracy–efficiency trade-off of INT8 quantization.
 
-### Prerequisites
+## Repository layout
 
-- Python 3.8+
-- Pip
-- Access to a GPU for optimal performance (recommended)
-
-### Installation
-
-Clone the repository and install the required packages:
-
-```bash
-git clone https://github.com/yourusername/RAG-Model-Optimization.git
-cd RAG-Model-Optimization
+```
+RAG_Optimization.ipynb   # end-to-end experiments: baseline + the four optimizations + benchmarks
+Data/                    # sample source document(s) used for retrieval
 ```
 
-## Documentation
+## Getting started
 
-Further documentation is available in the `docs` folder, detailing the architecture, data flow, and individual components of the project.
+```bash
+git clone https://github.com/Raghavesh101/RAG.git
+cd RAG
+```
 
-## Contributing
+Open `RAG_Optimization.ipynb` in Jupyter or Google Colab (a GPU runtime is recommended for the
+quantization and parallelism sections) and run the cells top to bottom. Key dependencies:
+`transformers`, `faiss`, and `torch`.
 
-Contributions to this project are welcome! Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for more details on how to submit pull requests, report issues, or request new features.
+## Notes & limitations
+
+- Built around a GPT-2-class generator and a small document set — the numbers illustrate the
+  *relative* effect of each optimization, not an absolute production benchmark.
+- BLEU is a coarse proxy for generation quality; treat the quality-preservation claim as
+  directional.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT — see [LICENSE](LICENSE).
 
-## Acknowledgments
+## Contact
 
-- Thanks to the contributors of the FAISS and Hugging Face Transformers libraries for making efficient retrieval and language processing accessible.
-- Special thanks to OpenAI for providing the dataset and resources.
-
-## Support
-
-For support and queries, please open an issue in the GitHub repository or contact rodidodasher@gmail.com.
-
-
+Raghavesh Mishra — [raghaveshm@gmail.com](mailto:raghaveshm@gmail.com) ·
+[LinkedIn](https://www.linkedin.com/in/raghavesh-mishra-a31339240/)
